@@ -1,0 +1,30 @@
+{%extends 'base.html'%}
+
+{%block body%}
+	<div class="container my-4">
+		<h3>Create an acccount!!</h3>
+		<form method="POST" action="signup/">
+			{%csrf_token%}
+			<div class="form-group my-4">
+			    <label for="email">Email address</label>
+			    <input type="email" class="form-control" id="email" placeholder="name@example.com" name="email">
+		  	</div>
+			<div class="form-group my-4">
+			    <label for="username">Username</label>
+			    <input type="text" class="form-control" id="username" placeholder="Username" name="username">
+			</div>  
+			<div class="form-group my-4">
+			    <label for="password">Password</label>
+			    <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+			</div>
+			<div class="form-group my-4">
+			    <label for="confpassword">Confirm Password</label>
+			    <input type="password" class="form-control" id="confpassword" placeholder="Confirm Password" name="confpassword">
+			</div>
+			<div class="form-group my-4">
+				<button type="submit" class="btn btn-outline-primary">Signup</button>
+			</div>
+			<div><p>Already have an account? <a href="{% url 'login' %}">Login instead!</a></p></div>
+		</form>
+	</div>
+{%endblock body%}

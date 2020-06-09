@@ -1,0 +1,119 @@
+{%extends 'base.html'%}
+
+{%block css%}
+	#postImg {
+	width : 100%;
+	height : 500px;
+}
+
+{%endblock%}
+
+{%block body%}
+	<div class="container">
+	{%for i in posts%}
+		<div class="container my-4 post_div" id="{{i.id}}" style="width : auto" >
+			<div class="card">
+			  <h5 class="card-header"><a href="{% url 'userProfile' i.user %}" style="color:black;">{{i.user}}</a>
+			  	<span class="text-muted" style="font-size:small"><a href="{% url 'posts_date' i.date.date %}">
+			  	{{i.date.date}}</a> </span></h5>
+			  <div class="card-body">
+			  	{%if '.mp4' in i.image.url%}
+			  	<video width='100%' height="460px" class="card-image mx-auto" controls>
+			  		<source src="{{i.image.url}}" type="video/mp4">
+			  			Old Browser
+			  	</video>
+			  	{% else %}
+			  		<img src="{{i.image.url}}"  class="card-image mx-auto"  alt="Image couldn't be loaded" id="postImg">
+			  	{%endif%}
+			    <pre class="card-text"><b>{{i.caption}}</b></pre>   	
+			    <hr size="100%" style="border:1px solid black">
+			    {%if request.user == i.user%}
+			    <p>Likes : {%if i.postLike.user.count%}{{i.postLike.user.count}}{%else%}0{%endif%}</p>
+			    <hr size="100%" style="border:1px solid black">
+			    {%endif%}
+			    <div class="row">
+					<button class="btn btn-primary mx-auto like" id = "{{i.id}}">
+					    	<a href="{% url 'likepost' %}" style="color:white;" id="like_text">
+					    	{%if i in liked_post%}Liked{%else%}Like</a>{%endif%}</button>
+				    <a class="btn btn-primary mx-auto" role='button' href="{% url 'comment' %}">Comment</a>
+				    <button class="btn btn-primary mx-auto">Repost</button>
+				    {%if i.user == request.user%}
+				    <a href="{% url 'deletePost' i.id %}" class="btn btn-danger mx-auto delete" id="{{i.id}}">Delete</a>
+				    {%endif%}
+				</div>
+			  </div>
+			</div>
+		</div>
+	{%endfor%}
+{%endblock%}
+
+{%block modal%}
+<div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="postModalLabel">Post</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="post/" enctype="multipart/form-data">
+			{%csrf_token%}
+			<div class="form-group">
+			    <label for="image">Image</label>
+			    <input type="file"  id="image" name="image">
+			</div>
+			<div class="form-group">
+			    <label for="captext">Captions</label>
+			    <textarea class="form-control" id="captext" placeholder="Write something..."
+			    rows="10" cols="55" name="caption" required></textarea>
+			</div>  		
+			<div class="form-group my-4">
+				<button type="submit" class="btn btn-outline-primary">Post</button>
+			</div>
+		</form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{%endblock%}
+
+{%block js%}
+	<script type="text/javascript">
+		$('.delete').click(function(e){
+			var id =this.id
+			var href = this.href
+			e.preventDefault()
+
+			$.ajax({
+				url: href,
+				data: {},
+			})
+
+			$(`#${this.id}`).fadeOut('1000')
+		})
+
+		$('.like').click(function(e){
+			var id = this.id
+			var btn = $(this)
+			var href = $(this).find('a').attr('href');
+			e.preventDefault()
+
+			$.ajax({
+				url: href,
+				data: {
+					'likeid' : id
+				},
+				success : function(response) {
+					if(response.liked) {
+						btn.find('a').html("Liked")
+					} else {
+						btn.find('a').html("Like")
+					}
+				},
+			})
+		})
+	</script>
+{%endblock%}

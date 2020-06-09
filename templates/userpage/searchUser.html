@@ -1,0 +1,16 @@
+{%extends 'base.html'%}
+
+{%block body%}
+	<div class="container my-4 mx-4">
+		{%for i in object_list%}
+			<div class="card my-2">
+				<div class="card-body">
+					<h5>{{i}}</h5>
+					<a role='button' href="{% url 'userProfile' i %}" class="btn btn-outline-primary">View</a>
+				</div>
+			</div>
+		{%empty%}
+			<p>No such user found!!</p>
+		{%endfor%}
+	</div>
+{%endblock%}

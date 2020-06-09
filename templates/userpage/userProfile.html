@@ -1,0 +1,117 @@
+{%extends 'base.html'%}
+
+{%block css%}
+	.userImage {
+		width : 200px;
+		height : 200px;
+		border-radius : 50%;
+}
+	.pst {
+		width : 350px;
+		height : 200px;
+		margin-bottom : 30px;
+}
+	.info {
+		padding-top : 2%;
+		padding-left : 2%;
+}
+	hr {
+		border-top : 2px solid black;
+}
+{%endblock%}
+
+{%block body%}
+	<div class="container my-4">
+		<div class="media">
+		  <img src="{{profile.user_image.url}}" class="align-self-start mr-3 userImage" alt="Couldn't load">
+		  <div class="media-body info">
+		    <h4 class="mt-0">{{getUser.username}}
+		    	{% if is_following and not request.user == getUser %}
+		    		<a role="button" class="btn btn-outline-danger"
+		    		href="{% url 'follow' getUser.username %}" id="follow">Unfollow</a>
+		    	{% elif not request.user == getUser%}
+		    		<a role="button" class="btn btn-outline-primary"
+		    		href="{% url 'follow' getUser.username %}" id="follow">Follow</a>
+		    	{% endif %}	
+		    </h4>
+		    <p>Followers : {{follower}}  Following : {{following}}</p>
+		    <p><b>{%if profile.bio%}{{bio}}{%else%}No bio{%endif%}</b></p>
+		  </div>
+		</div>
+
+		<hr>
+
+		<div class="row">
+			{%for i in post%}
+				{%for j in i%}
+					<div class="card col-md-4 col-sm-4" type='button' role='button' data-toggle="modal" data-target="#postShow">
+						<img src="{{j.image.url}}" alt='Post not loaded' class="card-image pst">
+						<div class="card-body">
+							<p class="card-text">{{j.caption}}</p>
+							{%if j.user == request.user%}
+							<p>Liked by : {%for l in j.postLike.user.all|slice:"4"%}
+							<a href="{% url 'userProfile' l.username %}">{{l.username}},</a>
+							{%empty%}
+							No likes yet
+							{%endfor%}
+							{%endif%}
+							</p>
+						</div>
+					</div>
+				{%endfor%}
+			{%endfor%}
+		</div>
+
+	</div>
+{%endblock%}
+{% block modal %}
+	<div class="modal fade" id="postShow" tabindex="-1" role="dialog" aria-labelledby="postShowLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="postShowLabel">All Posts</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+			{%for i in post%}
+				{%for j in i%}
+					<div class="card">
+						<img src="{{j.image.url}}" alt='Post not loaded' class="card-image" height="450px">
+						<div class="card-body">
+							<p class="card-text"><b>{{j.caption}}</b></p>
+						</div>
+					</div>
+				{%endfor%}
+			{%endfor%}
+		</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock modal %}
+
+{% block js %}
+	<script type="text/javascript">
+		$("#follow").click(function(e){
+			e.preventDefault()
+			var href = this.href
+			$.ajax({
+				url: href,
+				success : function(resp) {
+					$("#follow").removeClass()
+					if(resp.following) {
+						$("#follow").addClass("btn btn-outline-danger")
+						$('#follow').html('Unfollow')
+					} else {
+						$("#follow").addClass("btn btn-outline-primary")
+						$('#follow').html('Follow')
+					}
+				}
+			})	
+		})		
+	</script>
+{% endblock js %}

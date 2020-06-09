@@ -1,0 +1,37 @@
+{%extends 'base.html'%}
+
+{%block css%}
+	#postImg {
+	width : 100%;
+	height : 500px;
+}
+
+{%endblock%}
+
+{% block body %}
+	<div class="container">
+		<div class="container my-4 post_div" style="width : auto" >
+			<div class="card">
+			  <h5 class="card-header"><a href="{% url 'userProfile' post.user %}" style="color:black;">{{post.user}}</a>
+			  	<span class="text-muted" style="font-size:small"><a href="{% url 'posts_date' post.date.date %}">
+			  	{{post.date.date}}</a> </span></h5>
+			  <div class="card-body">
+			  	{%if '.mp4' in post.image.url%}
+			  	<video width='100%' height="460px" class="card-image mx-auto" controls>
+			  		<source src="{{post.image.url}}" type="video/mp4">
+			  			Old Browser
+			  	</video>
+			  	{% else %}
+			  		<img src="{{post.image.url}}"  class="card-image mx-auto"  alt="Image couldn't be loaded" id="postImg">
+			  	{%endif%}
+			    <pre class="card-text"><b>{{post.caption}}</b></pre>   	
+			    <hr size="100%" style="border:1px solid black">
+			    {%if request.user == post.user%}
+			    <p>Likes : {%if post.postLike.user.count%}{{post.postLike.user.count}}{%else%}0{%endif%}</p>
+			    <hr size="100%" style="border:1px solid black">
+			    {%endif%}
+			  </div>
+			</div>
+		</div>
+	</div>
+{% endblock body %}
