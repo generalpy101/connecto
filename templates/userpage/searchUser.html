@@ -1,11 +1,29 @@
 {%extends 'base.html'%}
 
+{% block css %}
+	.profilePic {
+	border-radius : 50%;
+	height : 100px;
+	width : 100px;
+}
+{% endblock css %}
+
 {%block body%}
-	<div class="container my-4 mx-4">
+	<div class="container my-4 ">
 		{%for i in object_list%}
-			<div class="card my-2">
+			<div class="card my-2">			
 				<div class="card-body">
-					<h5>{{i}}</h5>
+					<h5><img src="{{i.profile.user_image.url}}" class="card-img profilePic align-self-start">{{i.username}}</h5>
+					<p>Followers : {{i.follower.count}}   Following : {{i.followed.count}}</p>
+					<p>
+					{% for main in request.user.follower.all  %}
+						{% for showing in i.follower.all %}
+							{% if main == showing %}
+								{{main}},
+							{% endif %}
+						{% endfor %}
+					{% endfor %}
+					</p>
 					<a role='button' href="{% url 'userProfile' i %}" class="btn btn-outline-primary">View</a>
 				</div>
 			</div>
