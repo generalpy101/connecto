@@ -10,8 +10,10 @@
 		{%for i in notifications_all%}
 			{% if i.type == 'liked' %}
 				{% include "userpage/snippets/likednotif.html" %}
-			{% elif i.type == 'Followed' %}
+			{% elif i.type == 'followed' %}
 				{% include "userpage/snippets/followednotif.html" %}
+			{% elif i.type == 'postdelete' %}
+				{% include "userpage/snippets/postdeletenotif.html" %}
 			{% endif %}
 		{%empty%}
 		<p>No notifications</p>

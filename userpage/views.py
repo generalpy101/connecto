@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 import json
 from .models import Notification
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from django.views.generic import ListView
 
@@ -16,7 +17,6 @@ def home(request):
 	followed_users = user.followed.all()
 	posts = Post.objects.filter(user__in = followed_users).order_by('-date') | Post.objects.filter(user=request.user).order_by('-date')
 	liked_post = list()
-	notifications = Notification.objects.filter(to = request.user,seen=False)
 
 	for i in posts :
 		try :
@@ -27,7 +27,6 @@ def home(request):
 	data = {
 		'posts' : posts,
 		'liked_post' : liked_post,
-		'notifications' : notifications
 	}
 
 	return render(request,'userpage/postfeed.html',data)
@@ -76,7 +75,6 @@ def userProfile(request,uname) :
 		is_following = Following.objects.filter(user=request.user,followed = user)
 		following_obj = Following.objects.get(user = user)
 		follower,following = following_obj.follower.count(),following_obj.followed.count()
-		notifications = Notification.objects.filter(to = request.user,seen=False)
 		data = {
 			'getUser' : user,
 			'profile' : profile,
@@ -84,7 +82,6 @@ def userProfile(request,uname) :
 			'is_following' : is_following,
 			'following' : following,
 			'follower' : follower,
-			'notifications' :notifications
 		}
 		return render(request,'userpage/userProfile.html',data)
 	except Exception as e :
@@ -151,6 +148,7 @@ def follow(request,username) :
 class SearchUser(ListView):
     model = User
     template_name = "userpage/searchUser.html"
+    paginate_by = 2
 
     def get_queryset(self) :
     	username = self.request.GET.get('username','')
@@ -165,7 +163,6 @@ def dattedPosts(request,date) :
 		user__in = followed_users,date__startswith=date).order_by('-date') |Post.objects.filter(
 		user=request.user,date__startswith=date).order_by('-date')
 	liked_post = list()
-	notifications = Notification.objects.filter(to = request.user,seen=False)
 
 
 	for i in posts :
@@ -178,7 +175,6 @@ def dattedPosts(request,date) :
 		'posts' : posts,
 		'liked_post' : liked_post,
 		'date' : date,
-		'notifications' : notifications,
 	}
 
 	return render(request,'userpage/timmedPosts.html',data)
@@ -186,11 +182,9 @@ def dattedPosts(request,date) :
 
 def notification(request) :
 	notifications_all = Notification.objects.filter(to = request.user).order_by('-date')
-	notifications = Notification.objects.filter(to = request.user,seen=False)
 
 	data = {
 		'notifications_all' : notifications_all,
-		'notifications' : notifications
 	}
 
 	return render(request,'userpage/notifications.html',data)
@@ -226,3 +220,15 @@ def deleteNotification(request,id) :
 def postDetails(request,id) :
 	post = Post.objects.get(pk=id)
 	return render(request,'userpage/postDetail.html',{'post':post})
+
+def checkNotification(request) :
+	if request.method == 'POST' :
+		
+		notifications = Notification.objects.filter(to = request.user,seen = False)
+
+		if notifications :
+			response = {'notification' : True}
+		else  :
+			response = {'notification' : False}
+		response = json.dumps(response)
+		return HttpResponse(response,content_type='application/json')

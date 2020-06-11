@@ -49,23 +49,22 @@ class Following(models.Model):
 
 
 class Notification(models.Model) :
-	notification_type = (('Liked','liked'),('Followed','followed'))
 	to = models.ForeignKey(User,on_delete=models.CASCADE,related_name='receiver')
 	seen = models.BooleanField(default=False)
 	ref_user = models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True,related_name='referenced_user')
 	ref_post = models.ForeignKey(Post,on_delete=models.CASCADE,blank=True,null=True,related_name='referenced_post')
 	content = models.TextField()
 	date = models.DateTimeField(auto_now_add=True)
-	type = models.CharField(max_length=255,choices=notification_type,default='liked')
+	type = models.CharField(max_length=255)
 
 	def __str__(self) :
 		return f"{self.to} : {self.content}"
 
-from django.db.models.signals import post_save,m2m_changed
+from django.db.models.signals import pre_delete,m2m_changed
 from django.dispatch import receiver
 
 @receiver(m2m_changed,sender = Like.user.through)
-def send_notification(sender,instance,action,reverse,pk_set,**kwargs) :
+def send_liked_notification(sender,instance,action,reverse,pk_set,**kwargs) :
 	user = User()
 	for i in pk_set :
 		user = User.objects.get(pk=i)
@@ -80,3 +79,10 @@ def send_notification(sender,instance,action,reverse,pk_set,**kwargs) :
 			notification.delete()
 		except :
 			pass
+
+@receiver(pre_delete,sender=Post)
+def send_postDelete_notification(sender,instance,**kwargs) :
+	print(sender,instance,kwargs)
+	notification = Notification.objects.create(to = instance.user,content = f'You deleted your post captioned {instance.caption}'
+		,type = 'postdelete')
+	notification.save()

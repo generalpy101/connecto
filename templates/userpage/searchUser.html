@@ -28,7 +28,24 @@
 				</div>
 			</div>
 		{%empty%}
-			<p>No such user found!!</p>
+			<h1>No such user found!!</h1>
 		{%endfor%}
+		{% if is_paginated %}
+			<a href="?page=1" role='button' class="btn btn-outline-primary">First</a>
+			{% if page_obj.has_previous %}
+				<a href="?page={{page_obj.previous_page_number}}" role='button' class="btn btn-outline-primary">
+				{{page_obj.previous_page_number}}</a>
+			{% endif %}
+
+			{% if page_obj.number != 1 %}
+				<a href="?page={{page_obj.number}}" role='button' class="btn btn-success">{{page_obj.number}}</a>
+			{% endif %}
+			
+
+			{% if page_obj.has_next %}
+				<a href="?page={{page_obj.next_page_number}}" role='button' class="btn btn-outline-primary">
+				{{page_obj.next_page_number}}</a>
+			{% endif %}
+		{% endif %}
 	</div>
 {%endblock%}

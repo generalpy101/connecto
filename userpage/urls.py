@@ -17,4 +17,5 @@ urlpatterns = [
     path('notification/seen/all',views.setAsRead_all,name='notification_readAll'),
     path('notification/delete/<int:id>',views.deleteNotification,name='notification_delete'),
     path('post/<int:id>',views.postDetails,name='postDetails'),
+    path('notifCheck/',views.checkNotification,name='CheckNotification'),
 ]

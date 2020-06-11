@@ -1,0 +1,9 @@
+<div class="alert alert-warning notify_div" id="{{i.id}}">
+	<p>{{i.content}}
+	<span class="text-muted" style="font-size:small">--on {{i.date}}</span></p>
+	<div class="row">
+		{%if not i.seen %}<a href="{% url 'notification_read' i.id%}" 
+		class="btn btn-outline-secondary mx-auto read">Mark as Read</a>{%endif%}
+	<a href="{% url 'notification_delete' i.id %}" class="btn btn-outline-danger mx-auto delete" id="{{i.id}}">Delete</a>
+	</div>
+</div>
